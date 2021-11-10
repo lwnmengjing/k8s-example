@@ -1,0 +1,59 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: shadowsocks
+  name: shadowsocks
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: shadowsocks
+  template:
+    metadata:
+      labels:
+        app: shadowsocks
+    spec:
+      containers:
+        - name: shadowsocks
+          image: shadowsocks/shadowsocks-libev
+          command:
+            - "ss-server"
+          args:
+            - "-p"
+            - "8000"
+            - "-k"
+            - "xxxx"
+            - "-m"
+            - "aes-256-gcm"
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              cpu: '0.1'
+              memory: 30Mi
+            limits:
+              cpu: '1'
+              memory: 200Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: shadowsocks
+    service: shadowsocks
+  name: shadowsocks
+spec:
+  ports:
+    # - name: shadowsocks-udp
+    #   port: 8000
+    #   targetPort: 8000
+    #   protocol: UDP
+    - name: shadowsocks-tcp
+      port: 8000
+      targetPort: 8000
+      protocol: TCP
+  selector:
+    app: shadowsocks
+  type: LoadBalancer
